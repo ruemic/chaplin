@@ -53,23 +53,22 @@ define [
         class ThirdReich
           constructor: ->
             @afterInit = sinon.spy()
-            @callHitler = sinon.spy()
-            @afterCallHitler = sinon.spy()
+            @afterDeliver = sinon.spy()
             utils.wrapMethod this, 'init'
-            utils.wrapMethod this, 'callHitler'
+            utils.wrapMethod this, 'deliver'
             @init()
 
           init: ->
             'HEYO'
 
-          callHitler: ->
-            'IMMA HITLER LOL'
+          deliver: ->
+            'yep'
 
         object = new ThirdReich
         expect(object.afterInit).was.calledOnce()
-        expect(object.afterCallHitler).was.notCalled()
-        object.callHitler()
-        expect(object.afterCallHitler).was.calledOnce()
+        expect(object.afterDeliver).was.notCalled()
+        object.deliver()
+        expect(object.afterDeliver).was.calledOnce()
 
     describe 'upcase', ->
       it 'should make the first character in string upper-cased', ->
