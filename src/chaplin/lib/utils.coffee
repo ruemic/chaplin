@@ -1,6 +1,7 @@
 define [
+  'underscore'
   'chaplin/lib/support'
-], (support) ->
+], (_, support) ->
   'use strict'
 
   # Utilities
@@ -44,6 +45,18 @@ define [
       chain = [object]
       chain.push object while object = object.constructor?.__super__
       chain
+
+    # Get all property versions from object’s prototype chain.
+    # E.g. if object1 & object2 have `prop` and object2 inherits from
+    # object1, it will get [object1prop, object2prop].
+    getAllPropertyVersions: (object, property) ->
+      _(utils.getPrototypeChain object)
+        .chain()
+        .pluck(property)
+        .compact()
+        .uniq()
+        .value()
+        .reverse()
 
     # Function Helpers
     # ----------------
