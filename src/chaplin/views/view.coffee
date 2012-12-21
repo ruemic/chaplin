@@ -72,6 +72,10 @@ define [
       @subviews = []
       @subviewsByName = {}
 
+      # Add ability to use declarative bindings
+      # via `modelEvents` and `collectionEvents`.
+      @_delegateEntityEvents()
+
       # Listen for disposal of the model or collection.
       # If the model is disposed, automatically dispose the associated view
       @listenTo @model, 'dispose', @dispose if @model
@@ -160,20 +164,38 @@ define [
     delegateEvents: ->
       @undelegateEvents()
 
-      # Get 'events' props from every prototype,
-      # filter-out falsy values and duplicates.
-      _(utils.getPrototypeChain this)
-        .chain()
-        .pluck('events')
-        .compact()
-        .uniq()
-        .each (events) =>
-          @_delegateEvents events
+      # Get 'events' props from every prototype.
+      for events in utils.getAllPropertyVersions this, 'events'
+        @_delegateEvents events
       return
 
     # Remove all handlers registered with @delegate.
     undelegate: ->
       @$el.unbind ".delegate#{@cid}"
+
+    # Declarative handling of
+    # `modelEvents`, `collectionEvents` and `mediatorEvents`.
+    _delegateEntityEvents: ->
+      forEachEvent = (property, callback) =>
+        return unless this[property]
+        for version in utils.getAllPropertyVersions this, property
+          for event, methodName of version
+            method = this[methodName]
+            if typeof method isnt 'function'
+              console.log this, methodName, method
+              throw new Error 'View#_delegateEntityEvents: ' +
+                "#{methodName} must be function"
+            callback event, method
+
+      if @model
+        forEachEvent 'modelEvents', (event, method) =>
+          @listenTo @model, event, method
+
+      if @collection
+        forEachEvent 'collectionEvents', (event, method) =>
+          @listenTo @collection, event, method
+
+      forEachEvent 'mediatorEvents', @subscribeEvent
 
     # Setup a simple one-way model-view binding
     # Pass changed attribute values to specific elements in the view
