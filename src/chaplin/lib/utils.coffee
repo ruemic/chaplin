@@ -20,7 +20,7 @@ define [
       else
         ctor = ->
         (obj) ->
-          ctor:: = obj
+          ctor.prototype = obj
           new ctor
 
     # Make properties readonly and not configurable
@@ -42,7 +42,7 @@ define [
 
     # Get the whole chain of object prototypes.
     getPrototypeChain: (object) ->
-      chain = [object]
+      chain = [object.constructor.prototype]
       chain.push object while object = object.constructor?.__super__
       chain
 
