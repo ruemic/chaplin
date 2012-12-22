@@ -173,29 +173,32 @@ define [
     undelegate: ->
       @$el.unbind ".delegate#{@cid}"
 
-    # Declarative handling of
-    # `modelEvents`, `collectionEvents` and `mediatorEvents`.
+    # Declarative handling of `listen`.
     _delegateEntityEvents: ->
-      forEachEvent = (property, callback) =>
-        return unless this[property]
-        for version in utils.getAllPropertyVersions this, property
-          for event, methodName of version
-            method = this[methodName]
-            if typeof method isnt 'function'
-              console.log this, methodName, method
-              throw new Error 'View#_delegateEntityEvents: ' +
-                "#{methodName} must be function"
-            callback event, method
+      return unless this.listen?
+      for version in utils.getAllPropertyVersions this, 'listen'
+        for event, method of version
+          # Grab the method name; ensure it is a function, but allow methods
+          # to be declared in the hash.
+          method = this[method] unless _.isFunction method
+          if typeof method isnt 'function'
+            console.log this, methodName, method
+            throw new Error 'View#_delegateEntityEvents: ' +
+              "#{method} must be function"
 
-      if @model
-        forEachEvent 'modelEvents', (event, method) =>
-          @listenTo @model, event, method
+          # Break apart the event name.
+          segments = event.split(' ')
+          name = if segments.length > 1 then segments.pop() else null
+          eventName = segments.join(' ')
 
-      if @collection
-        forEachEvent 'collectionEvents', (event, method) =>
-          @listenTo @collection, event, method
+          if name?
+            # Does this target exist? Ignore the bind if it doesn't.
+            target = this[name]
+            @listenTo target, eventName, method if target?
 
-      forEachEvent 'mediatorEvents', @subscribeEvent
+          else
+            # Global event; subscribe to it
+            @subscribeEvent eventName, method
 
     # Setup a simple one-way model-view binding
     # Pass changed attribute values to specific elements in the view
