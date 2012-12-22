@@ -231,15 +231,16 @@ define [
 
     describe 'Events', ->
       class EventedViewParent extends View
-        modelEvents:
-          'change:a': 'a1Handler'
-          'change:b': 'b1Handler'
+        listen:
+          # @model
+          'change:a model': 'a1Handler'
+          'change:b model': 'b1Handler'
 
-        collectionEvents:
-          'reset': 'a1Handler'
-          'custom': 'b1Handler'
+          # @collection
+          'reset collection': 'a1Handler'
+          'custom collection': 'b1Handler'
 
-        mediatorEvents:
+          # global / mediator
           'ns:a': 'a1Handler'
           'ns:b': 'b1Handler'
 
@@ -249,15 +250,16 @@ define [
           super
 
       class EventedView extends EventedViewParent
-        modelEvents:
-          'change:a': 'a2Handler'
-          'change:b': 'b2Handler'
+        listen:
+          # @model
+          'change:a model': 'a2Handler'
+          'change:b model': 'b2Handler'
 
-        collectionEvents:
-          'reset': 'a2Handler'
-          'custom': 'b2Handler'
+          # @collection
+          'reset collection': 'a2Handler'
+          'custom collection': 'b2Handler'
 
-        mediatorEvents:
+          # global / mediator
           'ns:a': 'a2Handler'
           'ns:b': 'b2Handler'
 
@@ -274,7 +276,7 @@ define [
         @view.model?.dispose()
         @view.collection?.dispose()
 
-      it 'should support declarative event binding with modelEvents', ->
+      it 'should support declarative model event binding with listen', ->
         @view = new EventedView model: new Model
         expect(@view.a1Handler).was.notCalled()
         expect(@view.a2Handler).was.notCalled()
@@ -293,7 +295,7 @@ define [
         expect(@view.b1Handler).was.calledOnce()
         expect(@view.b2Handler).was.calledOnce()
 
-      it 'should support declarative event binding with collectionEvents', ->
+      it 'should support declarative collection event binding with listen', ->
         @view = new EventedView collection: new Collection
         expect(@view.a1Handler).was.notCalled()
         expect(@view.a2Handler).was.notCalled()
@@ -312,7 +314,7 @@ define [
         expect(@view.b1Handler).was.calledOnce()
         expect(@view.b2Handler).was.calledOnce()
 
-      it 'should support declarative event binding with mediatorEvents', ->
+      it 'should support declarative global event binding with listen', ->
         @view = new EventedView
         expect(@view.a1Handler).was.notCalled()
         expect(@view.a2Handler).was.notCalled()
