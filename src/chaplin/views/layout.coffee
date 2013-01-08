@@ -1,11 +1,13 @@
 define [
-  'jquery'
   'underscore'
   'backbone'
   'chaplin/lib/utils'
   'chaplin/lib/event_broker'
-], ($, _, Backbone, utils, EventBroker) ->
+], (_, Backbone, utils, EventBroker) ->
   'use strict'
+
+  # Shortcut to access the DOM manipulation library
+  $ = Backbone.$
 
   class Layout # This class does not extend View
 
@@ -145,21 +147,26 @@ define [
         return
 
       if isAnchor
-        # Get the path with query string
-        path = el.pathname + el.search
-        # Leading slash for IE8
+        path = el.pathname
+        queryString = el.search.substring 1
+        # Append leading slash for IE8
         path = "/#{path}" if path.charAt(0) isnt '/'
       else
-        path = href
+        [path, queryString] = href.split '?'
+        queryString ?= ''
 
-      # Pass to the router, try to route the path internally
-      @publishEvent '!router:route', path, {}, (routed) ->
+      # Create routing options and callback
+      options = {queryString}
+      callback = (routed) ->
         # Prevent default handling if the URL could be routed
         if routed
           event.preventDefault()
         else unless isAnchor
           location.href = path
         return
+
+      # Pass to the router, try to route the path internally
+      @publishEvent '!router:route', path, options, callback
 
       return
 
