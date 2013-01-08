@@ -199,8 +199,8 @@ define [
             @listenTo target, eventName, method if target?
 
           else
-            # Global event; subscribe to it
-            @subscribeEvent eventName, method
+            # Event on ourself; subscribe to it
+            @on eventName, method
 
     # Setup a simple one-way model-view binding
     # Pass changed attribute values to specific elements in the view
