@@ -238,7 +238,7 @@ define [
           'reset collection': 'a1Handler'
           'custom collection': 'b1Handler'
 
-          # global / mediator
+          # self
           'ns:a': 'a1Handler'
           'ns:b': 'b1Handler'
 
@@ -257,7 +257,7 @@ define [
           'reset collection': 'a2Handler'
           'custom collection': 'b2Handler'
 
-          # global / mediator
+          # self
           'ns:a': 'a2Handler'
           'ns:b': 'b2Handler'
 
@@ -312,20 +312,20 @@ define [
         expect(@view.b1Handler).was.calledOnce()
         expect(@view.b2Handler).was.calledOnce()
 
-      it 'should support declarative global event binding with listen', ->
+      it 'should support declarative self event binding with listen', ->
         @view = new EventedView
         expect(@view.a1Handler).was.notCalled()
         expect(@view.a2Handler).was.notCalled()
         expect(@view.b1Handler).was.notCalled()
         expect(@view.b2Handler).was.notCalled()
 
-        mediator.publish 'ns:a'
+        @view.trigger 'ns:a'
         expect(@view.a1Handler).was.calledOnce()
         expect(@view.a2Handler).was.calledOnce()
         expect(@view.b1Handler).was.notCalled()
         expect(@view.b2Handler).was.notCalled()
 
-        mediator.publish 'ns:b'
+        @view.trigger 'ns:b'
         expect(@view.a1Handler).was.calledOnce()
         expect(@view.a2Handler).was.calledOnce()
         expect(@view.b1Handler).was.calledOnce()
