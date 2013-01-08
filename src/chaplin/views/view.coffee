@@ -193,14 +193,23 @@ define [
           name = if segments.length > 1 then segments.pop() else null
           eventName = segments.join(' ')
 
-          if name?
-            # Does this target exist? Ignore the bind if it doesn't.
-            target = this[name]
-            @listenTo target, eventName, method if target?
+          # Delegate to the listener method to register the entity event
+          @delegateListener eventName, name, method
 
-          else
-            # Event on ourself; subscribe to it
-            @on eventName, method
+    # Declarative callback to register entity events.
+    delegateListener: (event, target, callback) ->
+      if target is ':el'
+        # Special target that refers to ourself, bind the event on ourself.
+        @on event, callback
+
+      else if target
+        # Does this target exist? Ignore the bind if it doesn't.
+        method = this[target]
+        @listenTo method, event, callback if method?
+
+      else
+        # No target; subscribe to it
+        @subscribeEvent event, callback
 
     # Setup a simple one-way model-view binding
     # Pass changed attribute values to specific elements in the view

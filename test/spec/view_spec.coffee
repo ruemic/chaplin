@@ -242,6 +242,10 @@ define [
           'ns:a': 'a1Handler'
           'ns:b': 'b1Handler'
 
+          # self
+          'ns:a :el': 'a1Handler'
+          'ns:b :el': 'b1Handler'
+
         initialize: ->
           @a1Handler = sinon.spy()
           @b1Handler = sinon.spy()
@@ -257,9 +261,13 @@ define [
           'reset collection': 'a2Handler'
           'custom collection': 'b2Handler'
 
-          # self
+          # global
           'ns:a': 'a2Handler'
           'ns:b': 'b2Handler'
+
+          # self
+          'ns:a :el': 'a2Handler'
+          'ns:b :el': 'b2Handler'
 
         initialize: ->
           @a2Handler = sinon.spy()
@@ -307,6 +315,25 @@ define [
         expect(@view.b2Handler).was.notCalled()
 
         @view.collection.trigger 'custom'
+        expect(@view.a1Handler).was.calledOnce()
+        expect(@view.a2Handler).was.calledOnce()
+        expect(@view.b1Handler).was.calledOnce()
+        expect(@view.b2Handler).was.calledOnce()
+
+      it 'should support declarative global event binding with listen', ->
+        @view = new EventedView
+        expect(@view.a1Handler).was.notCalled()
+        expect(@view.a2Handler).was.notCalled()
+        expect(@view.b1Handler).was.notCalled()
+        expect(@view.b2Handler).was.notCalled()
+
+        @view.trigger 'ns:a'
+        expect(@view.a1Handler).was.calledOnce()
+        expect(@view.a2Handler).was.calledOnce()
+        expect(@view.b1Handler).was.notCalled()
+        expect(@view.b2Handler).was.notCalled()
+
+        @view.trigger 'ns:b'
         expect(@view.a1Handler).was.calledOnce()
         expect(@view.a2Handler).was.calledOnce()
         expect(@view.b1Handler).was.calledOnce()
